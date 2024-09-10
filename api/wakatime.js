@@ -1,4 +1,6 @@
 import { renderWakatimeCard } from "../src/cards/wakatime-card.js";
+import { blacklist } from "../src/common/blacklist.js";
+import { verifyWhitelist } from "../src/common/whitelist.js";
 import {
   clampValue,
   CONSTANTS,
@@ -35,6 +37,18 @@ export default async (req, res) => {
   } = req.query;
 
   res.setHeader("Content-Type", "image/svg+xml");
+
+  if (blacklist.includes(username) || !verifyWhitelist(username)) {
+    return res.send(
+      renderError("Something went wrong", "This username is blacklisted", {
+        title_color,
+        text_color,
+        bg_color,
+        border_color,
+        theme,
+      }),
+    );
+  }
 
   if (locale && !isLocaleAvailable(locale)) {
     return res.send(
